@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { execSync, spawn } from "child_process";
 import { confirm } from '@clack/prompts';
 import Groq from "groq-sdk";
@@ -116,5 +117,4 @@ async function run() {
     process.exit();
   }
 }
-
-run();
+run()
