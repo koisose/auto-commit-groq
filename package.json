@@ -1,0 +1,17 @@
+{
+  "name": "auto-commit-indo",
+  "version": "1.0.7",
+  "description": "",
+  "main": "index.mjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": "index.mjs",
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@clack/prompts": "^0.7.0",
+    "dotenv": "^16.4.5",
+    "groq-sdk": "^0.3.2"
+  }
+}
