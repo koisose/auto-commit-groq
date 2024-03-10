@@ -11,7 +11,7 @@ const groq = new Groq({
 });
 
 const systemMessage = `You are a commit message generator create a commit message in english by their diff string, 
-you don't need to explain anything just put the commit message, first schema "<subject>" and "<body>" always in english, this is the schema:
+you don't need to explain anything just put the commit message, first "<subject>" and "<body>" always in english, this is the schema:
 
 ---
 <emoji> <type>(<scope>): <subject>
