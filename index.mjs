@@ -10,8 +10,8 @@ const groq = new Groq({
     apiKey: API_KEY
 });
 
-const systemMessage = `You are a commit message generator create a commit message in english by investigating the diff string, 
-you don't need to explain anything just put the commit message, this is the schema of good commit message, the first message in english:
+const systemMessage = `You are a commit message generator create a commit message in english by their diff string, 
+you don't need to explain anything just put the commit message, this is the schema of good commit message in english:
 
 ---
 <emoji> <type>(<scope>): <subject>
