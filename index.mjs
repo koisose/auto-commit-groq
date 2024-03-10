@@ -9,7 +9,8 @@ const groq = new Groq({
     apiKey: API_KEY
 });
 
-const systemMessage = `You are a commit message generator create a commit message in english by investigating the diff string this is the schema of good commit message:
+const systemMessage = `You are a commit message generator create a commit message in english by investigating the diff string, 
+you don't need to explain anything just put the commit message, this is the schema of good commit message, the first message in english:
 
 ---
 <emoji> <type>(<scope>): <subject>
@@ -31,9 +32,7 @@ Indonesian translation:
 
 📝 docs(README): tambah demo web dan proyek Clarifai.
 Menambahkan tautan demo web dan halaman proyek Clarifai ke dalam dokumentasi. Pengguna kini dapat mengakses demo aplikasi GPT-4 Turbo dan melihat proyek Clarifai melalui tautan yang disediakan.
----
-
-create commit message from this git diff:`;
+---`;
 
 
 async function gitDiffStaged() {
