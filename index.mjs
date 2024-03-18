@@ -81,7 +81,7 @@ async function run() {
       throw { status: 5001, message: "No changes to commit" };
     }
     const projectType = await select({
-      message: 'Pick a project type.',
+      message: 'Pick language',
       options: [
         { value: 'english', label: 'english' },
         { value: 'indonesia', label: 'indonesia' },
