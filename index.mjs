@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { execSync, spawn } from "child_process";
-import { confirm } from '@clack/prompts';
+import { confirm,select } from '@clack/prompts';
 import Groq from "groq-sdk";
 import dotenv from "dotenv";
 dotenv.config();
@@ -11,14 +11,9 @@ const groq = new Groq({
 });
 
 const systemMessage = `You are a commit message generator create a commit message in english by their diff string, 
-you don't need to explain anything just put the commit message, first "<subject>" and "<body>" always in english, this is the schema:
+you don't need to explain anything just put the commit message, this is the schema:
 
 ---
-<emoji> <type>(<scope>): <subject>
-<body>
-
-Indonesian translation:
-
 <emoji> <type>(<scope>): <subject>
 <body>
 ---
@@ -28,13 +23,21 @@ With allowed <type> values are feat, fix, perf, docs, style, refactor, test, and
 ---
 📝 docs(README): Add web demo and Clarifai project.
 Adding links to the web demo and Clarifai project page to the documentation. Users can now access the GPT-4 Turbo demo application and view the Clarifai project through the provided links.
-
-Indonesian translation:
-
-📝 docs(README): tambah demo web dan proyek Clarifai.
-Menambahkan tautan demo web dan halaman proyek Clarifai ke dalam dokumentasi. Pengguna kini dapat mengakses demo aplikasi GPT-4 Turbo dan melihat proyek Clarifai melalui tautan yang disediakan.
 ---`;
+const systemMessageEnglishOnly = `You are a commit message generator create a commit message in english by their diff string, 
+you don't need to explain anything just put the commit message, this is the schema:
 
+---
+<emoji> <type>(<scope>): <subject>
+<body>
+---
+
+With allowed <type> values are feat, fix, perf, docs, style, refactor, test, and build. And here's an example of a good commit message:
+
+---
+📝 docs(README): Add web demo and Clarifai project.
+Adding links to the web demo and Clarifai project page to the documentation. Users can now access the GPT-4 Turbo demo application and view the Clarifai project through the provided links.
+---`;
 
 async function gitDiffStaged() {
   const child = spawn("git", ["diff", "--staged"]);
@@ -77,11 +80,20 @@ async function run() {
     if (!diffString.trim()) {
       throw { status: 5001, message: "No changes to commit" };
     }
+    const projectType = await select({
+      message: 'Pick a project type.',
+      options: [
+        { value: 'english', label: 'english' },
+        { value: 'indonesia', label: 'indonesia' },
+        
+      ],
+    });
+ 
     const completion = await groq.chat.completions.create({
       messages: [
           {
               role: "system",
-              content: systemMessage
+              content: projectType==="english"?systemMessageEnglishOnly:systemMessage
           },
           {
               role: "user",
