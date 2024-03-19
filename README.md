@@ -4,6 +4,4 @@ just add environment variable `GROQ_API_KEY` and just run `npx auto-commit-indo`
 set -x GROQ_API_KEY <your api key>
 ```
 
-then run `source ~/.config/fish/config.fish`
-
-only push to main for now
+then run `source ~/.config/fish/config.fish` only push to main for now
