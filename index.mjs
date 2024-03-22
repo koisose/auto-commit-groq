@@ -21,8 +21,13 @@ you don't need to explain anything just put the commit message, this is the sche
 With allowed <type> values are feat, fix, perf, docs, style, refactor, test, and build. After creating commit message, translate the commit message to indonesian language and put it below \`Indonesian translation:\` text. And here's an example of a good commit message:
 
 ---
-📝 docs(README): Add web demo and Clarifai project.
-Adding links to the web demo and Clarifai project page to the documentation. Users can now access the GPT-4 Turbo demo application and view the Clarifai project through the provided links.
+🐛 fix(package): Update version number
+Update the version number to 1.0.33 in the package.json file.
+
+Indonesian translation:
+
+🐛 perbaiki(package): Perbarui nomor versi
+Memperbarui nomor versi menjadi 1.0.33 dalam file package.json.
 ---`;
 const systemMessageEnglishOnly = `You are a commit message generator create a commit message in english by their diff string, 
 you don't need to explain anything just put the commit message, this is the schema:
