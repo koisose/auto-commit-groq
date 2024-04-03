@@ -115,7 +115,14 @@ async function run() {
     let text6=text5.replace(/\'/gi, "\\'");
     console.log(text6)
 
-
+    const commitOnly = await confirm({
+      message: 'commit only?'
+    });
+    if(commitOnly){
+      execSync(`git add -A`);
+      execSync(`printf "${text6}" | git commit -F-`);
+      process.exit();
+    }
     const shouldContinue = await confirm({
       message: 'Do you want to push?',
     });
