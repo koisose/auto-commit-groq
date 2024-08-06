@@ -43,11 +43,27 @@ With allowed <type> values are feat, fix, perf, docs, style, refactor, test, and
 📝 docs(README): Add web demo and Clarifai project.
 Adding links to the web demo and Clarifai project page to the documentation. Users can now access the GPT-4 Turbo demo application and view the Clarifai project through the provided links.
 ---`;
-
-async function gitDiffStaged() {
-  const child = spawn("git", ["diff", "--staged"]);
-
-  const output = await new Promise((resolve, reject) => {
+async function gitAdd() {
+  const child = spawn("git", ["add", "."]);
+  await new Promise((resolve, reject) => {
+    child.on("close", (code) => {
+      if (code === 0) {
+        resolve();
+      } else {
+        reject(new Error(`Git command failed with exit code ${code}`));
+      }
+    });
+    child.stderr.on("data", (data) => {
+      if (data.toString().includes('nothing to commit')) {
+        reject(new Error('Nothing to commit'));
+      }
+      console.error(data.toString());
+    });
+  });
+}
+async function readFirstFileDiff(fileName) {
+  const child = spawn("git", ["diff", "--staged", fileName]);
+  const diffOutput = await new Promise((resolve, reject) => {
     let stdout = "";
     child.stdout.on("data", (data) => {
       stdout += data.toString();
@@ -63,58 +79,93 @@ async function gitDiffStaged() {
       console.error(data.toString());
     });
   });
-
-  return output;
+  return diffOutput;
 }
+async function gitDiffStaged() {
+  const child = spawn("git", ["diff", "--staged", "--name-only", "--diff-filter=d"]);
+  const output = await new Promise((resolve, reject) => {
+    let stdout = "";
+    child.stdout.on("data", (data) => {
+      stdout += data.toString();
+    });
+    child.on("close", (code) => {
+      if (code === 0) {
+        resolve(stdout);
+      } else {
+        reject(new Error(`aGit command failed with exit code ${code}`));
+      }
+    });
+    child.stderr.on("data", (data) => {
+      console.error(data.toString());
+    });
+  });
+
+  const files = output.trim().split('\n');
+  let shortestFile = files[0];
+  let shortestDiffLength = Infinity;
+  for (const file of files) {
+    const diff = await readFirstFileDiff(file);
+    if (diff.length < shortestDiffLength) {
+      shortestFile = file;
+      shortestDiffLength = diff.length;
+    }
+  }
+  const diff = await readFirstFileDiff(shortestFile);
+  return diff;
+
+
+
+}
+
 async function run() {
   try {
-    execSync(`#!/bin/bash
-
-    # Find the first changed file using git status
-    first_changed_file=$(git status --porcelain | awk '{print $2}' | head -n 1)
-    
-    # Check if a file was found
-    if [ -z "$first_changed_file" ]; then
-        echo "No changed files found."
-        exit 1
-    fi
-    
-    # Add the first changed file to staging
-    git add "$first_changed_file"`);
+    await gitAdd()
     const diffString = await gitDiffStaged();
     if (!diffString.trim()) {
       throw { status: 5001, message: "No changes to commit" };
     }
-    const projectType = await select({
-      message: 'Pick language',
-      options: [
-        { value: 'english', label: 'english' },
-        { value: 'indonesia', label: 'indonesia' },
-        
-      ],
-    });
+//     console.log(diffString)
+//     execSync("git reset")
+// return
  
     const completion = await groq.chat.completions.create({
       messages: [
           {
               role: "system",
-              content: projectType==="english"?systemMessageEnglishOnly:systemMessage
+              content: systemMessageEnglishOnly
+          },
+          { role: 'user', content: `diff --git a/bun.lockb b/bun.lockb
+            new file mode 100755
+            index 0000000..7a2303c
+            Binary files /dev/null and b/bun.lockb differ
+            ` }, 
+          {
+            role: "assistant",
+            content: "🌍feat(bun.lockb): Bun integration\nOur bun is now integrated into our project. This commit adds the ability to use a bun in our project.\n---\n\n\n"
           },
           {
               role: "user",
               content: diffString
           }
       ],
-      model: "mixtral-8x7b-32768"
+      model: "gemma2-9b-it"
   });
+  
   const text=completion.choices[0]?.message?.content || "";
     let text2=text.replace(/```/g, '');
     let text3=text2.replace(/---/g, '')
     let text4=text3.replace(/\"/gi, "\\\"")
     let text5=text4.replace(/\`/gi, "\\`");
     let text6=text5.replace(/\'/gi, "\\'");
-    console.log(text6)
 
+    console.log(text6.trim())
+    const stop = await confirm({
+      message: 'stop?'
+    });
+    if(stop){
+      execSync(`git reset`);
+      process.exit();
+    }
     const commitOnly = await confirm({
       message: 'commit only?'
     });
