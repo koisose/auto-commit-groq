@@ -148,7 +148,7 @@ async function run() {
               content: diffString
           }
       ],
-      model: "gemma2-9b-it"
+      model: "gemma-7b-it"
   });
   
   const text=completion.choices[0]?.message?.content || "";
